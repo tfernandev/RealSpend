@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: real-spend-web
+    env: node
+    plan: free
+    # Adjust this path if the render file is in the root and app is in real-spend-web/
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    rootDirectory: real-spend-web
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: PRESUPUESTO_ABIERTO_TOKEN
+        sync: false # Set this in Render Dashboard
