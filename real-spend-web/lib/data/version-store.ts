@@ -92,7 +92,7 @@ export async function detectAndRecordEvents(
   }
 
   if (budgetRows && budgetRows.length > 0) {
-    const hash = simpleHash(budgetRows.length + budgetRows.slice(0, 5));
+    const hash = simpleHash(budgetRows.length + JSON.stringify(budgetRows.slice(0, 5)));
     const lastHash = state.presupuesto.rowsHash;
     const isNewBudget = !lastHash || lastHash !== hash;
     if (isNewBudget) {
