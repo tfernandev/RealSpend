@@ -1,50 +1,34 @@
-# Economic Signal Engine — RealSpend
+# RealSpend — Decision Intelligence Engine (MVP)
 
-Motor de señales económicas que traduce **datos públicos agregados** en indicadores de riesgo e impacto económico, para orientar decisiones de asignación de recursos (sector público y privado).
+Sistema de análisis que transforma datos públicos en **señales económicas reales** ajustadas por inflación y estacionalidad. Diseñado para B2B (Fintechs, SaaS financieros, Analistas) que necesitan navegar la "ilusión nominal" en contextos de alta inflación.
 
-El sistema **no predice comportamientos individuales**. Reinterpreta señales macro y meso-económicas para responder: *¿Dónde el dinero rinde menos de lo que parece, y dónde se concentra el riesgo económico?*
+## Valor Estratégico
+- **Reality Check Engine™:** Motor de deflactación y normalización que revela la variación real (poder de compra) detrás de los montos nominales.
+- **Decision Intelligence:** Transforma datos brutos (Open Data) en señales operativas para priorizar cobranzas, ajustar presupuestos y detectar desvíos reales.
+- **Arquitectura Senior:** Motor orientado a eventos con trazabilidad de versiones de datos y reprocesamiento automático.
 
-## Dos vistas, un motor
+## Roadmap del Nivel Senior
+- [x] **Motor de Deflactación:** Integración via API con INDEC (IPC) y Presupuesto Abierto.
+- [x] **Detección de Eventos:** Sistema `version-store` para inmutabilidad de señales.
+- [/] **Senior Architecture (WIP):**
+    - [ ] Migración de Next.js API Routes a Backend dedicado en **.NET Core**.
+    - [ ] Persistencia en **PostgreSQL** (Tablas: `budget_versions`, `ipc_index`, `real_adjustments`).
+    - [ ] ETL Jobs mensuales para ingestión de Open Data.
 
-- **Vista A — RealSpend:** impacto del gasto público (índice de poder de compra real, deterioro histórico, desvíos no estacionales). Decisiones: programas que pierden capacidad real, aumentos nominales engañosos, comparación entre períodos.
-- **Vista B — Riesgo sectorial-regional:** (en desarrollo) índice de presión económica agregada, riesgo sectorial-regional, tendencias de deterioro. Decisiones: priorizar cobranza, fiscalización, estrategias de contacto.
-
-Ambas comparten: ajuste por inflación, estacionalidad, detección de desvíos reales. Datos **reproducibles, auditables, no sensibles**.
-
-## Stack
-
-- **Next.js 16** (App Router), **React 19**, **TypeScript**
-- **Recharts**, **Framer Motion**, **Tailwind CSS 4**
-- Tipos de dominio en `lib/types.ts`; API de señales en `app/api/signals/real-spend`
+## Stack Técnico
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, Recharts, Framer Motion.
+- **Backend:** Next.js API Routes (actual) -> Migrando a .NET Core.
+- **Signals:** `lib/data/version-store.ts` (Event sourcing conceptual).
 
 ## Cómo correr
-
 ```bash
 npm install
 npm run dev
 ```
-
-Abrir [http://localhost:3000](http://localhost:3000).
-
-## Presupuesto Abierto: datos abiertos y token
-
-- **Datos abiertos (sin token):** Ver [docs/PRESUPUESTO_DATOS.md](docs/PRESUPUESTO_DATOS.md) — URLs de CSV/ZIP en datos.gob.ar (serie anual por finalidad/función, totales).
-- **Token API:** Solicitud en https://www.presupuestoabierto.gob.ar/sici/api-pac. Paso a paso en el mismo doc. Si tenés token, configurá `PRESUPUESTO_ABIERTO_TOKEN` en `.env.local` (ver `.env.example`).
-
-## Fuentes de datos (producción)
-
-- **Vista A (RealSpend):** [Presupuesto Abierto](https://www.presupuestoabierto.gob.ar/) — ejecución presupuestaria, estructura programática (desde 2002). API: presupuestoabierto.gob.ar/api/v1 (token). IPC: INDEC.
-- **Vista B (riesgo sectorial):** INDEC (actividad por sector), BCRA (crédito, tasas), registros agregados por sector/región. Todo público, no sensible.
-
-## API
-
-- `GET /api/signals/real-spend?programId=&periodFrom=&periodTo=` — Devuelve `{ programs, series, meta }`. Lista de programas + serie nominal vs real (filtrable por programa y período). Hoy mock; producción: Presupuesto Abierto + IPC + estacionalidad.
-- `GET /api/signals/sector-risk` — Devuelve `{ signals: SectorRiskSignal[], meta }`. Vista B: índice de presión por sector. Hoy mock; producción: INDEC, BCRA.
+Abrir [http://localhost:3001](http://localhost:3001) (o puerto disponible).
 
 ## Qué NO hace
+No evalúa eficiencia política ni predice default individual. Produce contexto económico corregido; la decisión final es del usuario humano.
 
-No evalúa eficiencia política, no predice default individual, no acusa corrupción, no reemplaza análisis humano, no promete tiempo real. Produce contexto económico corregido; la decisión final es externa.
-
-## Licencia
-
-Open Data. (Ajustar según repo.)
+---
+**Senior Portfolio Insight:** Este no es un dashboard de visualización tradicional. Es un sistema de *Data Engineering* que da significado económico al dato ciego.

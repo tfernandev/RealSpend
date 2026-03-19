@@ -24,7 +24,7 @@ export default function Home() {
             <Activity className="w-6 h-6 text-emerald-500" />
           </div>
           <span className="text-xl font-bold tracking-tight text-slate-100">
-            Real<span className="text-emerald-500">Spend</span>
+            Real<span className="text-emerald-500">Spend</span> <span className="text-xs font-normal text-slate-500 ml-1">Decision Intelligence</span>
           </span>
         </div>
         <div className="hidden md:flex gap-8 text-sm font-medium text-slate-400">
@@ -48,14 +48,14 @@ export default function Home() {
           <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl opacity-30 animate-pulse pointer-events-none" />
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/50 border border-slate-800 text-xs font-medium text-emerald-400 backdrop-blur-sm">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-            Economic Signal Engine — V0.1 Alpha
+            Decision Intelligence Engine — V0.1 Alpha
           </div>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-100 leading-[1.1]">
-            El presupuesto puede crecer en <span className="bg-gradient-to-r from-slate-400 to-slate-600 bg-clip-text text-transparent">pesos</span> y achicarse en <span className="bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">realidad</span>.
+            Decision Intelligence sobre <span className="bg-gradient-to-r from-slate-400 to-slate-600 bg-clip-text text-transparent">datos públicos</span> en contextos <span className="bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">inflacionarios</span>.
           </h1>
-          <p className="text-slate-500 text-sm max-w-xl">Este proyecto existe para mostrar esa diferencia.</p>
+          <p className="text-slate-500 text-sm max-w-xl font-mono uppercase tracking-widest">Reality Check Engine — Built for Seniors</p>
           <p className="text-lg text-slate-400 max-w-xl leading-relaxed">
-            Un sistema que traduce el gasto público nominal en impacto económico real, ajustado por inflación y estacionalidad, usando solo datos públicos. No opera en tiempo real; el valor está en dar significado económico a datos que ya existen.
+            Un sistema que transforma datos públicos agregados en <span className="text-emerald-400 font-semibold italic">señales económicas reales</span>. No solo mostramos números; revelamos la pérdida de poder adquisitivo y el riesgo sectorial detrás de la ilusión nominal.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <a
@@ -118,26 +118,35 @@ export default function Home() {
       </section>
 
       {/* Los 5 eventos que el sistema escucha */}
+      {/* Reality Check Engine: Nicho B2B */}
       <section className="w-full max-w-7xl px-6 py-24 border-t border-slate-800">
-        <h2 className="text-3xl font-bold text-slate-100 mb-4">Eventos que el sistema escucha</h2>
-        <p className="text-slate-400 mb-8 max-w-3xl">
-          Un evento no es una transacción en tiempo real; es un cambio publicado oficialmente que altera el significado económico del gasto. El sistema reacciona a publicaciones oficiales porque son auditables, reproducibles y fijan el marco económico real.
-        </p>
-        <ul className="space-y-4">
-          {[
-            "Publicación de nuevos datos de ejecución presupuestaria — cambia cuánto gasto ocurrió y cuándo.",
-            "Revisión o corrección de datos presupuestarios históricos — cambia la base de comparación.",
-            "Publicación de un nuevo índice de inflación — cambia el poder de compra real del gasto pasado.",
-            "Actualización del calendario fiscal o cierre de períodos — cambia la interpretación estacional de picos o caídas.",
-            "Cambio en la estructura presupuestaria publicada — cambia cómo se agrupan y comparan partidas en el tiempo.",
-          ].map((text, i) => (
-            <li key={i} className="flex items-start gap-3 text-slate-300">
-              <span className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-emerald-500 border border-slate-700 shrink-0">{i + 1}</span>
-              {text}
-            </li>
-          ))}
-        </ul>
-        <p className="text-slate-500 text-sm mt-6">Todos son detectables automáticamente, no requieren intervención humana, y alteran el significado económico del gasto.</p>
+        <div className="flex flex-col md:flex-row gap-12 items-center">
+          <div className="flex-1 space-y-6">
+            <h2 className="text-3xl font-bold text-slate-100 italic underline decoration-emerald-500 underline-offset-8">Target: B2B Decision Intelligence</h2>
+            <p className="text-slate-400 text-lg">
+              Diseñado para Fintechs, estudios contables y SaaS financieros que necesitan responder una pregunta crítica: <span className="text-white">"¿Nuestros ingresos están mejorando o es solo inflación?"</span>
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                <span className="text-emerald-500 font-bold">Fintechs & SaaS</span>
+                <p className="text-xs text-slate-500 mt-1">Normalización de carteras de cobro contra IPC real.</p>
+              </div>
+              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                <span className="text-amber-500 font-bold">Analistas & Periodistas</span>
+                <p className="text-xs text-slate-500 mt-1">Explicar la economía real con métricas auditables.</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 p-8 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 text-center relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl -mr-16 -mt-16 group-hover:bg-emerald-500/20 transition-all" />
+            <ShieldCheck className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-slate-100 underline decoration-slate-800 underline-offset-4">Reality Check Engine™</h3>
+            <p className="text-slate-500 text-sm mt-4">
+              Detección automática de "Engaños Nominales": <br /> 
+              Identifica programas que parecen crecer pero pierden poder de compra real de manera crítica.
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Dos vistas, un motor */}
