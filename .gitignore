@@ -27,3 +27,10 @@ yarn-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# dotnet
+real-spend-api/bin/
+real-spend-api/obj/
+*.user
+.vs/
+appsettings.Development.json
