@@ -36,7 +36,10 @@ export default function RealSpendDataSection() {
     setError(null);
     try {
       const res = await fetch(`/api/signals/real-spend${buildQuery(filters)}`);
-      if (!res.ok) throw new Error(res.statusText);
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || res.statusText);
+      }
       const data: RealSpendResponse = await res.json();
       setPrograms(data.programs);
       setSeries(data.series);

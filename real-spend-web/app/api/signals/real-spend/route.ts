@@ -51,26 +51,7 @@ function fallbackSeasonalityFactor(period: string): number {
   return typical[(m ?? 1) - 1] ?? 1;
 }
 
-const FALLBACK_PROGRAMS: ProgramSummary[] = [
-  { id: "total", name: "Total agregado" },
-  { id: "edu", name: "Educación" },
-  { id: "salud", name: "Salud" },
-  { id: "infra", name: "Infraestructura" },
-];
 
-/** Nominal mock por mes cuando no hay token o falla la API. */
-function buildNominalMock(programId: string | null): { period: string; nominal: number }[] {
-  const base = [100, 108, 115, 125, 140, 180, 150, 160, 175, 190, 210, 280];
-  const months = [
-    "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06",
-    "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12",
-  ];
-  const shift = programId === "edu" ? 1.02 : programId === "salud" ? 0.98 : programId === "infra" ? 1.05 : 1;
-  return months.map((period, i) => ({
-    period,
-    nominal: Math.round(base[i] * (i < 6 ? 1 : shift)),
-  }));
-}
 
 function filterByPeriod(series: RealImpactResult[], from?: string, to?: string): RealImpactResult[] {
   if (!from && !to) return series;
@@ -125,44 +106,35 @@ export async function GET(request: NextRequest) {
   const year = periodFrom ? parseInt(periodFrom.slice(0, 4), 10) : periodTo ? parseInt(periodTo.slice(0, 4), 10) : 2024;
   const hasToken = !!getPresupuestoToken();
 
-  let programs: ProgramSummary[] = FALLBACK_PROGRAMS;
+  let programs: ProgramSummary[] = [];
   let nominalPoints: { period: string; nominal_amount: number; program_id?: string; program_name?: string }[];
   let source: string;
   let realBudget = false;
 
-  if (hasToken) {
-    try {
-      const [programList, nominalFromApi] = await Promise.all([
-        fetchProgramas(year),
-        fetchNominalSeries(year, programId === "total" || !programId ? undefined : programId),
-      ]);
-      if (programList.length > 0) {
-        programs = [{ id: "total", name: "Total agregado" }, ...programList];
-      }
-      if (nominalFromApi.length > 0) {
-        nominalPoints = nominalFromApi;
-        realBudget = true;
-        source = "Presupuesto Abierto (API) + IPC datos.gob.ar (INDEC).";
-      } else {
-        nominalPoints = buildNominalMock(programId ?? "total").map((p) => ({
-          period: p.period,
-          nominal_amount: p.nominal,
-        }));
-        source = "Gasto nominal: sin datos para el filtro (mock). IPC: datos.gob.ar.";
-      }
-    } catch {
-      nominalPoints = buildNominalMock(programId ?? "total").map((p) => ({
-        period: p.period,
-        nominal_amount: p.nominal,
-      }));
-      source = "Presupuesto Abierto no disponible; usando mock. IPC: datos.gob.ar cuando esté disponible.";
+  if (!hasToken) {
+    return NextResponse.json({ error: "PRESUPUESTO_ABIERTO_TOKEN no está configurado." }, { status: 401 });
+  }
+
+  try {
+    const [programList, nominalFromApi] = await Promise.all([
+      fetchProgramas(year),
+      fetchNominalSeries(year, programId === "total" || !programId ? undefined : programId),
+    ]);
+    if (programList.length > 0) {
+      programs = [{ id: "total", name: "Total agregado" }, ...programList];
+    } else {
+      throw new Error("No se pudo obtener la lista de programas desde Presupuesto Abierto.");
     }
-  } else {
-    nominalPoints = buildNominalMock(programId ?? "total").map((p) => ({
-      period: p.period,
-      nominal_amount: p.nominal,
-    }));
-    source = "Configure PRESUPUESTO_ABIERTO_TOKEN para gasto real. IPC: datos.gob.ar cuando esté disponible.";
+    if (nominalFromApi.length > 0) {
+      nominalPoints = nominalFromApi;
+      realBudget = true;
+      source = "Presupuesto Abierto (API)";
+    } else {
+      throw new Error(`No hay datos de gasto/ejecución disponibles para el año ${year}.`);
+    }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: errorMsg }, { status: 502 });
   }
 
   const programName = programs.find((p) => p.id === (programId ?? "total"))?.name ?? "Total agregado";
@@ -196,26 +168,13 @@ export async function GET(request: NextRequest) {
       const baseIpc = ipcPoints[0]?.value ?? 100;
       series = applyIPC(nominalPoints, ipcByPeriod, baseIpc, getSeasonality, programId ?? undefined, programName);
       realIPC = true;
-      if (!source.includes("IPC")) source = (realBudget ? "Presupuesto Abierto + " : "") + "IPC real: datos.gob.ar (INDEC).";
+      source += " + IPC real: datos.gob.ar (INDEC).";
     } else {
-      series = nominalPoints.map((p) => ({
-        period: p.period,
-        nominal_amount: p.nominal_amount,
-        real_amount: p.nominal_amount,
-        purchasing_power_change_percent: 0,
-        seasonality_factor: getSeasonality(p.period),
-        ...(p.program_id ? { program_id: p.program_id, program_name: p.program_name } : {}),
-      }));
+      throw new Error(`El INDEC (mediante datos.gob.ar) no devolvió datos del IPC para ${year}.`);
     }
-  } catch {
-    series = nominalPoints.map((p) => ({
-      period: p.period,
-      nominal_amount: p.nominal_amount,
-      real_amount: p.nominal_amount,
-      purchasing_power_change_percent: 0,
-      seasonality_factor: fallbackSeasonalityFactor(p.period),
-      ...(p.program_id ? { program_id: p.program_id, program_name: p.program_name } : {}),
-    }));
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: errorMsg }, { status: 502 });
   }
 
   const filtered = filterByPeriod(series, periodFrom, periodTo);
